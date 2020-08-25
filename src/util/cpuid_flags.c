@@ -127,33 +127,33 @@ const char *dumpTune(u32 tune) {
 #endif
 
 u32 cpuid_tune(void) {
-    unsigned int eax, ebx, ecx, edx;
+    // unsigned int eax, ebx, ecx, edx;
 
-    cpuid(1, 0, &eax, &ebx, &ecx, &edx);
+    // cpuid(1, 0, &eax, &ebx, &ecx, &edx);
 
-    u32 family = (eax >> 8) & 0xf;
-    u32 model = 0;
+    // u32 family = (eax >> 8) & 0xf;
+    // u32 model = 0;
 
-    if (family == 0x6 || family == 0xf) {
-        model = ((eax >> 4) & 0xf) | ((eax >> 12) & 0xf0);
-    } else {
-        model = (eax >> 4) & 0xf;
-    }
+    // if (family == 0x6 || family == 0xf) {
+    //     model = ((eax >> 4) & 0xf) | ((eax >> 12) & 0xf0);
+    // } else {
+    //     model = (eax >> 4) & 0xf;
+    // }
 
-    DEBUG_PRINTF("family = %xh model = %xh\n", family, model);
-    for (u32 i = 0; i < ARRAY_LENGTH(known_microarch); i++) {
-        if (family != known_microarch[i].full_family) {
-            continue;
-        }
+    // DEBUG_PRINTF("family = %xh model = %xh\n", family, model);
+    // for (u32 i = 0; i < ARRAY_LENGTH(known_microarch); i++) {
+    //     if (family != known_microarch[i].full_family) {
+    //         continue;
+    //     }
 
-        if (model != known_microarch[i].full_model) {
-            continue;
-        }
+    //     if (model != known_microarch[i].full_model) {
+    //         continue;
+    //     }
 
-        u32 tune = known_microarch[i].tune;
-        DEBUG_PRINTF("found tune flag %s\n", dumpTune(tune) );
-        return tune;
-    }
+    //     u32 tune = known_microarch[i].tune;
+    //     DEBUG_PRINTF("found tune flag %s\n", dumpTune(tune) );
+    //     return tune;
+    // }
 
     return HS_TUNE_FAMILY_GENERIC;
 }

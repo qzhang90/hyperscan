@@ -83,8 +83,10 @@
 /*
  * MSVC uses a different form of inline asm
  */
-#if defined(_WIN32) && defined(_MSC_VER)
+// #if defined(_WIN32) && defined(_MSC_VER)
+// #define NO_ASM
+// #endif
+
 #define NO_ASM
-#endif
 
 #endif // UTIL_ARCH_H_

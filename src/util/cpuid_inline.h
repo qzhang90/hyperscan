@@ -46,16 +46,16 @@ extern "C"
 static inline
 void cpuid(unsigned int op, unsigned int leaf, unsigned int *eax,
            unsigned int *ebx, unsigned int *ecx, unsigned int *edx) {
-#ifndef _WIN32
-    __cpuid_count(op, leaf, *eax, *ebx, *ecx, *edx);
-#else
-    int a[4];
-    __cpuidex(a, op, leaf);
-    *eax = a[0];
-    *ebx = a[1];
-    *ecx = a[2];
-    *edx = a[3];
-#endif
+// #ifndef _WIN32
+//     __cpuid_count(op, leaf, *eax, *ebx, *ecx, *edx);
+// #else
+//     int a[4];
+//     __cpuidex(a, op, leaf);
+//     *eax = a[0];
+//     *ebx = a[1];
+//     *ecx = a[2];
+//     *edx = a[3];
+// #endif
 }
 
 // ECX
@@ -112,34 +112,35 @@ int check_avx2(void) {
 #if defined(__INTEL_COMPILER)
     return _may_i_use_cpu_feature(_FEATURE_AVX2);
 #else
-    unsigned int eax, ebx, ecx, edx;
+    return 1;
+    // unsigned int eax, ebx, ecx, edx;
 
-    cpuid(1, 0, &eax, &ebx, &ecx, &edx);
+    // cpuid(1, 0, &eax, &ebx, &ecx, &edx);
 
-    /* check AVX is supported and XGETBV is enabled by OS */
-    if ((ecx & (CPUID_AVX | CPUID_XSAVE)) != (CPUID_AVX | CPUID_XSAVE)) {
-        DEBUG_PRINTF("AVX and XSAVE not supported\n");
-        return 0;
-    }
+    // /* check AVX is supported and XGETBV is enabled by OS */
+    // if ((ecx & (CPUID_AVX | CPUID_XSAVE)) != (CPUID_AVX | CPUID_XSAVE)) {
+    //     DEBUG_PRINTF("AVX and XSAVE not supported\n");
+    //     return 0;
+    // }
 
-    /* check that SSE and AVX registers are enabled by OS */
-    u64a xcr0 = xgetbv(0);
-    if ((xcr0 & (CPUID_XCR0_SSE | CPUID_XCR0_AVX)) !=
-        (CPUID_XCR0_SSE | CPUID_XCR0_AVX)) {
-        DEBUG_PRINTF("SSE and AVX registers not enabled\n");
-        return 0;
-    }
+    // /* check that SSE and AVX registers are enabled by OS */
+    // u64a xcr0 = xgetbv(0);
+    // if ((xcr0 & (CPUID_XCR0_SSE | CPUID_XCR0_AVX)) !=
+    //     (CPUID_XCR0_SSE | CPUID_XCR0_AVX)) {
+    //     DEBUG_PRINTF("SSE and AVX registers not enabled\n");
+    //     return 0;
+    // }
 
-    /* ECX and EDX contain capability flags */
-    ecx = 0;
-    cpuid(7, 0, &eax, &ebx, &ecx, &edx);
+    // /* ECX and EDX contain capability flags */
+    // ecx = 0;
+    // cpuid(7, 0, &eax, &ebx, &ecx, &edx);
 
-    if (ebx & CPUID_AVX2) {
-        DEBUG_PRINTF("AVX2 enabled\n");
-        return 1;
-    }
+    // if (ebx & CPUID_AVX2) {
+    //     DEBUG_PRINTF("AVX2 enabled\n");
+    //     return 1;
+    // }
 
-    return 0;
+    // return 0;
 #endif
 }
 
@@ -151,60 +152,64 @@ int check_avx512(void) {
 #if defined(__INTEL_COMPILER)
     return _may_i_use_cpu_feature(_FEATURE_AVX512BW | _FEATURE_AVX512VL);
 #else
-    unsigned int eax, ebx, ecx, edx;
-
-    cpuid(1, 0, &eax, &ebx, &ecx, &edx);
-
-    /* check XSAVE is enabled by OS */
-    if (!(ecx & CPUID_XSAVE)) {
-        DEBUG_PRINTF("AVX and XSAVE not supported\n");
-        return 0;
-    }
-
-    /* check that AVX 512 registers are enabled by OS */
-    u64a xcr0 = xgetbv(0);
-    if ((xcr0 & CPUID_XCR0_AVX512) != CPUID_XCR0_AVX512) {
-        DEBUG_PRINTF("AVX512 registers not enabled\n");
-        return 0;
-    }
-
-    /* ECX and EDX contain capability flags */
-    ecx = 0;
-    cpuid(7, 0, &eax, &ebx, &ecx, &edx);
-
-    if (!(ebx & CPUID_AVX512F)) {
-        DEBUG_PRINTF("AVX512F (AVX512 Foundation) instructions not enabled\n");
-        return 0;
-    }
-
-    if (ebx & CPUID_AVX512BW) {
-        DEBUG_PRINTF("AVX512BW instructions enabled\n");
-        return 1;
-    }
-
     return 0;
+    // unsigned int eax, ebx, ecx, edx;
+
+    // cpuid(1, 0, &eax, &ebx, &ecx, &edx);
+
+    // /* check XSAVE is enabled by OS */
+    // if (!(ecx & CPUID_XSAVE)) {
+    //     DEBUG_PRINTF("AVX and XSAVE not supported\n");
+    //     return 0;
+    // }
+
+    // /* check that AVX 512 registers are enabled by OS */
+    // u64a xcr0 = xgetbv(0);
+    // if ((xcr0 & CPUID_XCR0_AVX512) != CPUID_XCR0_AVX512) {
+    //     DEBUG_PRINTF("AVX512 registers not enabled\n");
+    //     return 0;
+    // }
+
+    // /* ECX and EDX contain capability flags */
+    // ecx = 0;
+    // cpuid(7, 0, &eax, &ebx, &ecx, &edx);
+
+    // if (!(ebx & CPUID_AVX512F)) {
+    //     DEBUG_PRINTF("AVX512F (AVX512 Foundation) instructions not enabled\n");
+    //     return 0;
+    // }
+
+    // if (ebx & CPUID_AVX512BW) {
+    //     DEBUG_PRINTF("AVX512BW instructions enabled\n");
+    //     return 1;
+    // }
+
+    // return 0;
 #endif
 }
 
 static inline
 int check_ssse3(void) {
-    unsigned int eax, ebx, ecx, edx;
-    cpuid(1, 0, &eax, &ebx, &ecx, &edx);
-    return !!(ecx & CPUID_SSSE3);
+    return 1;
+    // unsigned int eax, ebx, ecx, edx;
+    // cpuid(1, 0, &eax, &ebx, &ecx, &edx);
+    // return !!(ecx & CPUID_SSSE3);
 }
 
 static inline
 int check_sse42(void) {
-    unsigned int eax, ebx, ecx, edx;
-    cpuid(1, 0, &eax, &ebx, &ecx, &edx);
-    return !!(ecx & CPUID_SSE4_2);
+    return 0;
+    // unsigned int eax, ebx, ecx, edx;
+    // cpuid(1, 0, &eax, &ebx, &ecx, &edx);
+    // return !!(ecx & CPUID_SSE4_2);
 }
 
 static inline
 int check_popcnt(void) {
-    unsigned int eax, ebx, ecx, edx;
-    cpuid(1, 0, &eax, &ebx, &ecx, &edx);
-    return !!(ecx & CPUID_POPCNT);
+    return 0;
+    // unsigned int eax, ebx, ecx, edx;
+    // cpuid(1, 0, &eax, &ebx, &ecx, &edx);
+    // return !!(ecx & CPUID_POPCNT);
 }
 
 #ifdef __cplusplus

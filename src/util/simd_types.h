@@ -33,22 +33,29 @@
 #include "util/arch.h"
 #include "util/intrinsics.h"
 #include "ue2common.h"
+#include <simde/x86/ssse3.h>
+#include <simde/x86/avx512f.h>
 
-#if defined(HAVE_SSE2)
-typedef __m128i m128;
-#else
-typedef struct ALIGN_DIRECTIVE {u64a hi; u64a lo;} m128;
-#endif
 
+typedef simde__m128i m128;
+// #if defined(HAVE_SSE2)
+// typedef simde__m128i m128;
+// #else
+// typedef struct ALIGN_DIRECTIVE {u64a hi; u64a lo;} m128;
+// #endif
+
+// typedef simde__m256i m256;
 #if defined(HAVE_AVX2)
-typedef __m256i m256;
+typedef simde__m256i m256;
 #else
 typedef struct ALIGN_AVX_DIRECTIVE {m128 lo; m128 hi;} m256;
 #endif
 
 typedef struct {m128 lo; m128 mid; m128 hi;} m384;
+
+// typedef simde__m512i m512;
 #if defined(HAVE_AVX512)
-typedef __m512i m512;
+typedef simde__m512i m512;
 #else
 typedef struct ALIGN_ATTR(64) {m256 lo; m256 hi;} m512;
 #endif

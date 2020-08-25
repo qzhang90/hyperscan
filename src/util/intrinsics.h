@@ -55,8 +55,12 @@
 # endif
 #endif
 
+#define USE_S390INTRIN_H
+
 #if defined(USE_X86INTRIN_H)
 #include <x86intrin.h>
+#elif defined(USE_S390INTRIN_H)
+#include <s390intrin.h>
 #elif defined(USE_INTRIN_H)
 #include <intrin.h>
 #else

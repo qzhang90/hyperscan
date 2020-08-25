@@ -6,6 +6,8 @@ if (HAVE_C_X86INTRIN_H)
     set (INTRIN_INC_H "x86intrin.h")
 elseif (HAVE_C_INTRIN_H)
     set (INTRIN_INC_H "intrin.h")
+elseif (HAVE_CXX_S390INTRIN_H)
+    set (INTRIN_INC_H "s390intrin.h")
 else ()
     message (FATAL_ERROR "No intrinsics header found")
 endif ()
@@ -22,7 +24,8 @@ if (FAT_RUNTIME)
     if (BUILD_AVX512)
         set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} ${SKYLAKE_FLAG}")
     else ()
-        set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=core-avx2")
+        # set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=core-avx2")
+        set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=z14")
     endif ()
 else (NOT FAT_RUNTIME)
     # if not fat runtime, then test given cflags
@@ -31,20 +34,19 @@ endif ()
 
 # ensure we have the minimum of SSSE3 - call a SSSE3 intrinsic
 CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
+#include <simde/x86/ssse3.h>
 int main() {
-    __m128i a = _mm_set1_epi8(1);
-    (void)_mm_shuffle_epi8(a, a);
+    simde__m128i a = simde_mm_set1_epi8(1);
+    (void)simde_mm_shuffle_epi8(a, a);
 }" HAVE_SSSE3)
 
 # now look for AVX2
 CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
-#if !defined(__AVX2__)
-#error no avx2
-#endif
+#include <simde/x86/avx2.h>
 
 int main(){
-    __m256i z = _mm256_setzero_si256();
-    (void)_mm256_xor_si256(z, z);
+    simde__m256i z = simde_mm256_setzero_si256();
+    (void)simde_mm256_xor_si256(z, z);
 }" HAVE_AVX2)
 
 # and now for AVX512
