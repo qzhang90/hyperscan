@@ -44,6 +44,7 @@
 #include "util/arch.h"
 #include "util/intrinsics.h"
 #include <simde/x86/ssse3.h>
+#include <simde/x86/avx2.h>
 
 #include <string.h> // for memcpy
 

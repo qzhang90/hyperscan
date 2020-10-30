@@ -260,8 +260,8 @@ const u8 *firstMatch(const u8 *buf, u32 z) {
 static really_inline
 u32 block(m256 shuf_mask_lo_highclear, m256 shuf_mask_lo_highset, m256 v) {
 
-    m256 highconst = _mm256_set1_epi8(0x80);
-    m256 shuf_mask_hi = _mm256_set1_epi64x(0x8040201008040201);
+    m256 highconst = simde_mm256_set1_epi8(0x80);
+    m256 shuf_mask_hi = simde_mm256_set1_epi64x(0x8040201008040201);
 
     // and now do the real work
     m256 shuf1 = pshufb_m256(shuf_mask_lo_highclear, v);

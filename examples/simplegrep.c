@@ -116,7 +116,7 @@ static char *readInputData(const char *inputFN, unsigned int *length) {
         return NULL;
     }
 
-    char *inputData = malloc(dataLen);
+    char *inputData = (char *)malloc(dataLen);
     if (!inputData) {
         fprintf(stderr, "ERROR: unable to malloc %ld bytes\n", dataLen);
         fclose(f);
@@ -217,5 +217,6 @@ int main(int argc, char *argv[]) {
     hs_free_scratch(scratch);
     free(inputData);
     hs_free_database(database);
+    printf("Scan is complete. \n");
     return 0;
 }

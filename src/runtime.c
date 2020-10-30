@@ -801,9 +801,12 @@ void rawStreamExec(struct hs_stream *stream_state, struct hs_scratch *scratch) {
 static really_inline
 void pureLiteralStreamExec(struct hs_stream *stream_state,
                            struct hs_scratch *scratch) {
+    printf("~~~~ Qi Zhang, pureLiteralStreamExec\n");
     assert(stream_state);
     assert(scratch);
     assert(!can_stop_matching(scratch));
+
+    printf("~~~~ Qi Zhang, pureLiteralStreamExec 1\n");
 
     const struct RoseEngine *rose = stream_state->rose;
     const struct HWLM *ftable = getFLiteralMatcher(rose);
@@ -813,13 +816,16 @@ void pureLiteralStreamExec(struct hs_stream *stream_state,
     DEBUG_PRINTF("::: streaming rose ::: offset = %llu len = %zu\n",
                  stream_state->offset, scratch->core_info.len);
 
+    printf("~~~~ Qi Zhang, pureLiteralStreamExec 2\n");
     pureLiteralInitScratch(scratch, stream_state->offset);
+    printf("~~~~ Qi Zhang, pureLiteralStreamExec 3\n");
     scratch->tctxt.groups = loadGroups(rose, scratch->core_info.state);
 
     // Pure literal cases don't have floatingMinDistance set, so we always
     // start the match region at zero.
     const size_t start = 0;
 
+    printf("~~~~ Qi Zhang, pureLiteralStreamExec 4\n");
     hwlmExecStreaming(ftable, len2, start, roseCallback, scratch,
                       rose->initialGroups & rose->floating_group_mask);
 

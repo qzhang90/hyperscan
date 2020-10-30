@@ -147,6 +147,14 @@ TEST(CustomAllocator, TwoAlignedDeserialize) {
     hs_set_database_allocator(two_aligned_malloc, two_aligned_free);
 
     err = hs_deserialize_database(bytes, serialized_len, &db);
+
+    printf("~~~Qi Zhang: serialized_len = %lu\n", serialized_len);
+    size_t qi = 0;
+    printf("~~~Qi Zhang, start of bytes\n");
+    for(qi = 0; qi < serialized_len; qi++)
+        printf("%d ", (int)(*(bytes+qi)));
+    printf("\n~~~Qi Zhang, end of bytes\n");
+
     ASSERT_EQ(HS_BAD_ALLOC, err);
     ASSERT_EQ(nullptr, db);
 

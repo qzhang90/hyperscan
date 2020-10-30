@@ -51,7 +51,7 @@ _get_mm_mask_end(u32 len) {
     assert(len <= 32);
     const u8 *masky = (const u8 *)mm_mask_mask;
     m256 mask = load256(masky + 32);
-    mask = _mm256_sll_epi32(mask, _mm_cvtsi32_si128(8 - (len >> 2)));
+    mask = simde_mm256_sll_epi32(mask, simde_mm_cvtsi32_si128(8 - (len >> 2)));
     return mask;
 }
 
@@ -68,8 +68,8 @@ masked_move256_len(const u8 *buf, const u32 len) {
     m256 lmask = _get_mm_mask_end(len);
 
     u32 end = unaligned_load_u32(buf + len - 4);
-    m256 preshufend = _mm256_broadcastq_epi64(_mm_cvtsi32_si128(end));
-    m256 v = _mm256_maskload_epi32((const int *)buf, lmask);
+    m256 preshufend = simde_mm256_broadcastq_epi64(simde_mm_cvtsi32_si128(end));
+    m256 v = simde_mm256_maskload_epi32((const int *)buf, lmask);
     m256 shufend = pshufb_m256(preshufend,
                                loadu256(&mm_shuffle_end[len - 4]));
     m256 target = or256(v, shufend);

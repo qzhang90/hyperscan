@@ -211,6 +211,9 @@ hwlm_error_t hwlmExecStreaming(const struct HWLM *t, size_t len, size_t start,
     DEBUG_PRINTF("hbuf len=%zu, buf len=%zu, start=%zu, groups=%llx\n", hlen,
                  len, start, groups);
 
+    printf("~~~ Qi Zhang, in hwlmExecStreaming, hbuf len=%zu, buf len=%zu, start=%zu, groups=%llx\n", hlen,
+    len, start, groups);
+
     if (!groups) {
         return HWLM_SUCCESS;
     }

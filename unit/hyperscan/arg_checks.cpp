@@ -587,6 +587,7 @@ TEST(HyperscanArgChecks, ChangeStreamContext) {
                          (void *)scratch);
     ASSERT_EQ(HS_SUCCESS, err);
 
+    std::cout << "Qi Zhang: lastMatchTo = " << lastMatchTo << ", strlen(str) = " << strlen(str) << std::endl;
     ASSERT_EQ(lastMatchTo, strlen(str));
     ASSERT_EQ(lastMatchCtx, scratch);
 

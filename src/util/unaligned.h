@@ -34,6 +34,7 @@
 #define UNALIGNED_H
 
 #include "ue2common.h"
+#include "byteswap.h"
 
 #if !defined(_WIN32)
 #define PACKED__MAY_ALIAS __attribute__((packed, may_alias))
@@ -47,7 +48,7 @@ static really_inline
 u16 unaligned_load_u16(const void *ptr) {
     struct unaligned { u16 u; } PACKED__MAY_ALIAS;
     const struct unaligned *uptr = (const struct unaligned *)ptr;
-    return uptr->u;
+    return byteSwapu16(uptr->u);
 }
 
 /// Perform an unaligned 32-bit load
@@ -55,7 +56,7 @@ static really_inline
 u32 unaligned_load_u32(const void *ptr) {
     struct unaligned { u32 u; } PACKED__MAY_ALIAS;
     const struct unaligned *uptr = (const struct unaligned *)ptr;
-    return uptr->u;
+    return byteSwapu32(uptr->u);
 }
 
 /// Perform an unaligned 64-bit load
@@ -63,7 +64,7 @@ static really_inline
 u64a unaligned_load_u64a(const void *ptr) {
     struct unaligned { u64a u; } PACKED__MAY_ALIAS;
     const struct unaligned *uptr = (const struct unaligned *)ptr;
-    return uptr->u;
+    return byteSwapu64a(uptr->u);
 }
 
 /// Perform an unaligned 16-bit store

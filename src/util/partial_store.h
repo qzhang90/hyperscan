@@ -31,6 +31,7 @@
 
 #include "ue2common.h"
 #include "unaligned.h"
+#include "byteswap.h"
 
 /* loads/stores the least significant bytes of the values. */
 

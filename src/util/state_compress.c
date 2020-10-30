@@ -294,7 +294,7 @@ m256 loadcompressed256_64bit(const void *ptr, m256 mvec) {
     m256 xvec = { .lo = simde_mm_set_epi64x(x[1], x[0]),
                   .hi = simde_mm_set_epi64x(x[3], x[2]) };
 #else
-    m256 xvec = _mm256_set_epi64x(x[3], x[2], x[1], x[0]);
+    m256 xvec = simde_mm256_set_epi64x(x[3], x[2], x[1], x[0]);
 #endif
     return xvec;
 }
@@ -591,8 +591,8 @@ m512 loadcompressed512_64bit(const void *ptr, m512 mvec) {
     m512 xvec = _mm512_set_epi64(x[7], x[6], x[5], x[4],
                                  x[3], x[2], x[1], x[0]);
 #elif defined(HAVE_AVX2)
-    m512 xvec = { .lo = _mm256_set_epi64x(x[3], x[2], x[1], x[0]),
-                  .hi = _mm256_set_epi64x(x[7], x[6], x[5], x[4])};
+    m512 xvec = { .lo = simde_mm256_set_epi64x(x[3], x[2], x[1], x[0]),
+                  .hi = simde_mm256_set_epi64x(x[7], x[6], x[5], x[4])};
 #else
     m512 xvec = { .lo = { simde_mm_set_epi64x(x[1], x[0]),
                           simde_mm_set_epi64x(x[3], x[2]) },

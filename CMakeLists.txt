@@ -235,8 +235,10 @@ else()
     if (NOT RELEASE_BUILD)
         # -Werror is most useful during development, don't potentially break
         # release builds
-        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Werror")
-        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Werror")
+        # set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Werror")
+        # set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Werror")
+        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS}")
+        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS}")
     endif()
 
     if (DISABLE_ASSERTS)

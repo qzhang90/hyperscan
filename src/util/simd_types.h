@@ -44,12 +44,12 @@ typedef simde__m128i m128;
 // typedef struct ALIGN_DIRECTIVE {u64a hi; u64a lo;} m128;
 // #endif
 
-// typedef simde__m256i m256;
-#if defined(HAVE_AVX2)
 typedef simde__m256i m256;
-#else
-typedef struct ALIGN_AVX_DIRECTIVE {m128 lo; m128 hi;} m256;
-#endif
+// #if defined(HAVE_AVX2)
+// typedef simde__m256i m256;
+// #else
+// typedef struct ALIGN_AVX_DIRECTIVE {m128 lo; m128 hi;} m256;
+// #endif
 
 typedef struct {m128 lo; m128 mid; m128 hi;} m384;
 

@@ -50,6 +50,8 @@
 #include "util/copybytes.h"
 #include "util/fatbit.h"
 #include "util/multibit.h"
+#include "util/byteswap.h"
+
 
 /* Inline implementation follows. */
 
@@ -649,6 +651,7 @@ int roseCheckMask(const struct core_info *ci, u64a and_mask, u64a cmp_mask,
     DEBUG_PRINTF("checkOffset %d offset %lld\n", checkOffset, offset);
     if (unlikely(checkOffset < 0 && (u64a)(0 - checkOffset) > end)) {
         DEBUG_PRINTF("too early, fail\n");
+        fprintf(stdout, "~~~ Qi Zhang, too early, fail\n");
         return 0;
     }
 
@@ -676,6 +679,7 @@ int roseCheckMask(const struct core_info *ci, u64a and_mask, u64a cmp_mask,
         if (offset + 7 < 0) {
             DEBUG_PRINTF("all in history buffer\n");
             data = partial_load_u64a(h_start, 8 - shift_r);
+            fprintf(stdout, "~~~ Qi Zhang, case 1, %d\n", 8 - shift_r);
         } else {
             // history part
             c_len = offset + 8;
@@ -683,6 +687,8 @@ int roseCheckMask(const struct core_info *ci, u64a and_mask, u64a cmp_mask,
             DEBUG_PRINTF("%d bytes in history\n", h_len);
             s64a data_h = 0;
             data_h = partial_load_u64a(h_start, h_len);
+            fprintf(stdout, "~~~ Qi Zhang, case 2, %d\n", h_len);
+
             // current part
             if (c_len > (s64a)ci->len) {
                 shift_l = c_len - ci->len;
@@ -706,8 +712,11 @@ int roseCheckMask(const struct core_info *ci, u64a and_mask, u64a cmp_mask,
             shift_l = offset + c_len - ci->len;
             c_len = ci->len - offset;
             data = partial_load_u64a(ci->buf + offset, c_len);
+            fprintf(stdout, "~~~ Qi Zhang, case 3, %d\n", c_len);
         } else {
             data = unaligned_load_u64a(ci->buf + offset);
+            // fprintf(stdout, "~~~ Qi Zhang, case 4\n");
+            // data = byteSwapu64a(data);
         }
     }
 
@@ -721,6 +730,7 @@ int roseCheckMask(const struct core_info *ci, u64a and_mask, u64a cmp_mask,
         DEBUG_PRINTF("check mask successfully\n");
         return 1;
     } else {
+        fprintf(stdout, "~~~ Qi Zhang, validateMask, fail\n");
         return 0;
     }
 }
@@ -1944,7 +1954,8 @@ hwlmcb_rv_t checkPurelyNegatives(const struct RoseEngine *t,
         DEBUG_PRINTF("instruction: " #name " (pc=%u)\n",                       \
                      programOffset + (u32)(pc - pc_base));                     \
         const struct ROSE_STRUCT_##name *ri =                                  \
-            (const struct ROSE_STRUCT_##name *)pc;
+            (const struct ROSE_STRUCT_##name *)pc;                             \
+        fprintf(stdout, "~~~ Qi Zhang, instruction: " #name " (pc=%u, programOffset = %u)\n", programOffset + (u32)(pc - pc_base), programOffset);
 
 #define PROGRAM_NEXT_INSTRUCTION                                               \
     pc += ROUNDUP_N(sizeof(*ri), ROSE_INSTR_MIN_ALIGN);                        \
@@ -2078,6 +2089,7 @@ hwlmcb_rv_t roseRunProgram(const struct RoseEngine *t,
         const u8 code = *(const u8 *)pc;
         assert(code <= LAST_ROSE_INSTRUCTION);
 
+        fprintf(stdout, "~~~ Qi Zhang, in roseRunProgram, code = %d\n", code);
         switch ((enum RoseInstructionCode)code) {
             PROGRAM_CASE(END) {
                 DEBUG_PRINTF("finished\n");
@@ -2113,10 +2125,13 @@ hwlmcb_rv_t roseRunProgram(const struct RoseEngine *t,
             PROGRAM_CASE(CHECK_GROUPS) {
                 DEBUG_PRINTF("groups=0x%llx, checking instr groups=0x%llx\n",
                              tctxt->groups, ri->groups);
+                fprintf(stdout, "~~~ Qi Zhang, Hi I am in CHECK_GROUPS start\n");
                 if (!(ri->groups & tctxt->groups)) {
                     DEBUG_PRINTF("halt: no groups are set\n");
+                    fprintf(stdout, "~~~ Qi Zhang, halt: no groups are set\n");
                     return HWLM_CONTINUE_MATCHING;
                 }
+                fprintf(stdout, "~~~ Qi Zhang, Hi I am in CHECK_GROUPS continue\n");
             }
             PROGRAM_NEXT_INSTRUCTION
 
@@ -2176,14 +2191,17 @@ hwlmcb_rv_t roseRunProgram(const struct RoseEngine *t,
 
             PROGRAM_CASE(CHECK_MASK) {
                 struct core_info *ci = &scratch->core_info;
+                fprintf(stdout, "~~~ Qi Zhang, and_mask = %016llx, cmp_mask=%016llx, neg_mask=%016llx, offset = %d, end=%016llx\n", ri->and_mask, ri->cmp_mask, ri->neg_mask, ri->offset, end);
                 if (!roseCheckMask(ci, ri->and_mask, ri->cmp_mask,
                                    ri->neg_mask, ri->offset, end)) {
                     DEBUG_PRINTF("failed mask check\n");
+                    fprintf(stdout, "~~~ Qi Zhang, failed mask check\n");
                     assert(ri->fail_jump); // must progress
                     pc += ri->fail_jump;
                     PROGRAM_NEXT_INSTRUCTION_JUMP
                 }
             }
+            fprintf(stdout, "~~~ Qi Zhang, successful mask check\n");
             PROGRAM_NEXT_INSTRUCTION
 
             PROGRAM_CASE(CHECK_MASK_32) {

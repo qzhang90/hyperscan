@@ -42,6 +42,7 @@
 #include "util/masked_move.h"
 #include "util/partial_store.h"
 #include "util/simd_utils.h"
+#include "util/byteswap.h"
 
 #include <ctype.h>
 #include <stdbool.h>
@@ -119,18 +120,23 @@ hwlm_error_t final(const struct noodTable *n, const u8 *buf, UNUSED size_t len,
         }
     }
     assert(len >= n->msk_len);
+    printf("~~~ Qi Zhang, pos = %lu, n->key_offset = %d, n->msk_len = %d\n", pos, n->key_offset, n->msk_len);
     u64a v =
         partial_load_u64a(buf + pos + n->key_offset - n->msk_len, n->msk_len);
     DEBUG_PRINTF("v %016llx msk %016llx cmp %016llx\n", v, n->msk, n->cmp);
+    printf("~~~ Qi Zhang, final() v %016llx msk %016llx cmp %016llx\n", v, n->msk, n->cmp);
     if ((v & n->msk) != n->cmp) {
         /* mask didn't match */
+        printf("Qi Zhang, final() return from mask did not match\n");
         return HWLM_SUCCESS;
     }
 
 match:
     pos -= cbi->offsetAdj;
     DEBUG_PRINTF("match @ %zu\n", pos + n->key_offset);
+    printf("Qi Zhang, final() before cbi->cb\n");
     hwlmcb_rv_t rv = cbi->cb(pos + n->key_offset - 1, cbi->id, cbi->scratch);
+    printf("Qi Zhang, final() after cbi->cb\n");
     if (rv == HWLM_TERMINATE_MATCHING) {
         return HWLM_TERMINATED;
     }
@@ -236,13 +242,16 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
     hwlm_error_t rv;
 
     if (end - offset < CHUNKSIZE) {
+        printf("~~~~ Qi Zhang, before scanDoubleShort\n");
         rv = scanDoubleShort(n, buf, len, noCase, caseMask, mask1, mask2, cbi,
                              offset, end);
+        printf("~~~~ Qi Zhang in scanDoubleMain, return from 1\n");
         return rv;
     }
     if (end - offset == CHUNKSIZE) {
         rv = scanDoubleUnaligned(n, buf, len, offset, noCase, caseMask, mask1,
                                  mask2, cbi, offset, end);
+        printf("~~~~ Qi Zhang in scanDoubleMain, return from 2\n");
         return rv;
     }
 
@@ -266,6 +275,7 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
 
     if (s2Start >= end) {
         DEBUG_PRINTF("s2 == mL %zu\n", end);
+        printf("~~~~ Qi Zhang in scanDoubleMain, return from 3\n");
         return HWLM_SUCCESS;
     }
 
@@ -281,13 +291,14 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
 
     // if there isn't enough data left to match the key, bail out
     if (s2End == end) {
+        printf("~~~~ Qi Zhang in scanDoubleMain, return from 4\n");
         return HWLM_SUCCESS;
     }
 
     DEBUG_PRINTF("stage 3: %zu -> %zu\n", s3Start, end);
     rv = scanDoubleUnaligned(n, buf, len, s3Start, noCase, caseMask, mask1,
                              mask2, cbi, off, end);
-
+    printf("~~~~ Qi Zhang in scanDoubleMain, return from 5\n");
     return rv;
 #else // AVX512
     return scanDouble512(n, buf, len, noCase, caseMask, mask1, mask2, cbi,
@@ -347,8 +358,10 @@ hwlm_error_t scanDouble(const struct noodTable *n, const u8 *buf, size_t len,
                         size_t start, bool noCase, const struct cb_info *cbi) {
     // kinda ugly, but this forces constant propagation
     if (noCase) {
+        printf("~~~Qi Zhang, scanDoubleNoCase\n");
         return scanDoubleNoCase(n, buf, len, start, cbi);
     } else {
+        printf("~~~Qi Zhang, scanDoubleCase\n");
         return scanDoubleCase(n, buf, len, start, cbi);
     }
 }
@@ -358,14 +371,18 @@ static really_inline
 hwlm_error_t scan(const struct noodTable *n, const u8 *buf, size_t len,
                   size_t start, char single, bool noCase,
                   const struct cb_info *cbi) {
+    printf("~~~ Qi Zhang in scan, len = %lu, start = %lu, n->msk_len = %d\n", len, start, n->msk_len);
     if (len - start < n->msk_len) {
         // can't find string of length keyLen in a shorter buffer
+        printf("~~~Qi Zhang, scan() return from here\n");
         return HWLM_SUCCESS;
     }
 
     if (single) {
+        printf("Qi Zhang, scanSingle\n");
         return scanSingle(n, buf, len, start, noCase, cbi);
     } else {
+        printf("Qi Zhang, scanDouble\n");
         return scanDouble(n, buf, len, start, noCase, cbi);
     }
 }
@@ -398,7 +415,10 @@ hwlm_error_t noodExecStreaming(const struct noodTable *n, const u8 *hbuf,
     DEBUG_PRINTF("nood scan of %zu bytes (%zu hlen) for %*s @ %p\n", len, hlen,
                  n->msk_len, (const char *)&n->cmp, buf);
 
+    printf("~~ Qi Zhang: noodExecStreaming 2, hlen = %lu, len = %lu\n", hlen, len);
+
     if (hlen && n->msk_len > 1) {
+        printf("~~ Qi Zhang: noodExecStreaming 3, hlen = %lu, len = %lu\n", hlen, len);
         /*
          * we have history, so build up a buffer from enough of the history
          * buffer plus what we've been given to scan. Since this is relatively
@@ -434,7 +454,7 @@ hwlm_error_t noodExecStreaming(const struct noodTable *n, const u8 *hbuf,
             }
         }
     }
-
+    printf("~~ Qi Zhang: noodExecStreaming 4, hlen = %lu, len = %lu\n", hlen, len);
     assert(buf);
 
     cbi.offsetAdj = 0;

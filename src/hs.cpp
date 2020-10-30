@@ -50,6 +50,12 @@
 #include "util/popcount.h"
 #include "util/target_info.h"
 
+#include "util/byteswap.h"
+#include "hwlm/hwlm_internal.h"
+#include "hwlm/noodle_internal.h"
+#include "rose/rose_internal.h"
+#include "crc32.h"
+
 #include <cassert>
 #include <cstddef>
 #include <cstring>
@@ -258,6 +264,17 @@ hs_compile_multi_int(const char *const *expressions, const unsigned *flags,
 
         *db = out;
         *comp_error = nullptr;
+
+        // Added by Qi Zhang, change the endianness of noodTable->msk and noodTable->cmp in db
+        const struct RoseEngine *rose = (const struct RoseEngine *)hs_get_bytecode(*db);
+        const struct HWLM *ftable = getFLiteralMatcher(rose);
+        const struct HWLM *t = (const struct HWLM *)ftable;
+        struct noodTable *n = (struct noodTable *)HWLM_C_DATA(t);
+
+        n->msk = byteSwapu64a(n->msk);
+        n->cmp = byteSwapu64a(n->cmp);
+        const char *bytecode = (const char *)hs_get_bytecode(*db);
+        (*db)->crc32 = Crc32c_ComputeBuf(0, bytecode, (*db)->length);
 
         return HS_SUCCESS;
     }

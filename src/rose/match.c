@@ -241,6 +241,7 @@ hwlmcb_rv_t roseProcessMatchInline(const struct RoseEngine *t,
     if (t->pureLiteral) {
         return roseRunProgram_l(t, scratch, id, som, end, flags);
     } else {
+        printf("~~~~ Qi Zhang, roseRunProgram\n");
         return roseRunProgram(t, scratch, id, som, end, flags);
     }
 }
@@ -523,6 +524,7 @@ hwlmcb_rv_t roseCallback_i(size_t end, u32 id, struct hs_scratch *scratch) {
 }
 
 hwlmcb_rv_t roseCallback(size_t end, u32 id, struct hs_scratch *scratch) {
+    printf("~~~ Qi Zhang, roseCallback\n");
     return roseCallback_i(end, id, scratch);
 }
 

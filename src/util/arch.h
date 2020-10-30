@@ -33,6 +33,7 @@
 #ifndef UTIL_ARCH_H_
 #define UTIL_ARCH_H_
 
+#define __SSE2__
 #if defined(__SSE2__) || defined(_M_X64) || (_M_IX86_FP >= 2)
 #define HAVE_SSE2
 #endif
@@ -49,6 +50,7 @@
 #define HAVE_AVX
 #endif
 
+#define __AVX2__
 #if defined(__AVX2__)
 #define HAVE_AVX2
 #endif

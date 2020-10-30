@@ -84,7 +84,6 @@ hs_error_t HS_CDECL hs_serialize_database(const hs_database_t *db, char **bytes,
     }
 
     memset(out, 0, length);
-
     u32 *buf = (u32 *)out;
     *buf = db->magic;
     buf++;
@@ -113,6 +112,16 @@ hs_error_t HS_CDECL hs_serialize_database(const hs_database_t *db, char **bytes,
 // runtime platform.
 static
 hs_error_t db_check_platform(const u64a p) {
+    #if !defined(HAVE_AVX2)
+    printf("~~~Qi Zhang HAVE_AVX2 not defined\n");
+    #endif
+    #if !defined(HAVE_AVX512)
+    printf("~~~Qi Zhang HAVE_AVX512 not defined\n");
+    #endif
+
+    printf("~~~Qi Zhang p = %lld\n", p);
+    printf("~~~Qi Zhang hs_current_platform = %lld, hs_current_platform_no_avx2 = %lld, hs_current_platform_no_avx512 = %lld\n",
+    hs_current_platform, hs_current_platform_no_avx2, hs_current_platform_no_avx512);
     if (p != hs_current_platform
         && p != (hs_current_platform | hs_current_platform_no_avx2)
         && p != (hs_current_platform | hs_current_platform_no_avx512)) {
@@ -251,12 +260,25 @@ hs_error_t HS_CDECL hs_deserialize_database(const char *bytes,
     // Decode and check the header
     hs_database_t header;
     hs_error_t ret = db_decode_header(&bytes, length, &header);
+
+    printf("~~~Qi Zhang deserialize start\n");
+    printf("db->magic = %d\n", header.magic);
+    printf("db->version = %d\n", header.version);
+    printf("db->length = %d\n", header.length);
+    printf("db->platform = %lld\n", header.platform);
+    printf("db->crc32 = %d\n", header.crc32);
+    printf("db->reserved0 = %d\n", header.reserved0);
+    printf("db->reserved1 = %d\n", header.reserved1);
+    printf("~~~Qi Zhang deserialize stop\n");
+
+    printf("~~~ Qi Zhang 1, ret = %d\n", ret);
     if (ret != HS_SUCCESS) {
         return ret;
     }
 
     // Make sure the serialized database is for our platform
     ret = db_check_platform(header.platform);
+    printf("~~~ Qi Zhang 2, ret = %d\n", ret);
     if (ret != HS_SUCCESS) {
         return ret;
     }
@@ -265,6 +287,7 @@ hs_error_t HS_CDECL hs_deserialize_database(const char *bytes,
     size_t dblength = sizeof(struct hs_database) + header.length;
     struct hs_database *tempdb = hs_database_alloc(dblength);
     ret = hs_check_alloc(tempdb);
+    printf("~~~ Qi Zhang 3, ret = %d\n", ret);
     if (ret != HS_SUCCESS) {
         hs_database_free(tempdb);
         return ret;
@@ -345,6 +368,7 @@ hs_error_t dbIsValid(const hs_database_t *db) {
 
     hs_error_t rv = db_check_crc(db);
     if (rv != HS_SUCCESS) {
+        fprintf(stdout, "~~~ Qi Zhang, db crc check failed");
         DEBUG_PRINTF("bad crc\n");
         return rv;
     }
