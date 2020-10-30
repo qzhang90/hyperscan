@@ -41,3 +41,28 @@ sending email to the list, or by creating an issue on Github.
 If you wish to contact the Hyperscan team at Intel directly, without posting
 publicly to the mailing list, send email to
 [hyperscan@intel.com](mailto:hyperscan@intel.com).
+
+# Compile and install hyperscan on Z
+Prepare
+- Install simde header files: copy simde dir(https://github.com/simd-everywhere/simde/tree/master/simde) to /usr/include
+
+Compile
+- cd hyperscan
+- mkdir build
+- cd build
+- cmake ..  // May need to install the necessary packages
+- make
+
+Install
+- make install
+
+# Run the example
+- cd hyperscan/example
+
+simplegrep:
+- gcc simplegrep.c -o simplegrep -L/usr/local/lib -lhs -lhs_runtime -lstdc++ -lm
+- ./simplegrep include simplegrep.c
+
+pcapcsan.c
+- g++ -std=c++11 -O2 -o pcapscan pcapscan.cc -L/usr/local/lib -lhs -lhs_runtime -lm -lpcap
+

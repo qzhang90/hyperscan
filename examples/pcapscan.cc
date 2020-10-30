@@ -73,7 +73,7 @@
 
 #include <pcap.h>
 
-#include <hs.h>
+#include <hs/hs.h>
 
 using std::cerr;
 using std::cout;
